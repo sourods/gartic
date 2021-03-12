@@ -1,16 +1,14 @@
-import { createGlobalStyle } from "styled-components";
+import css from 'styled-jsx/css'
 
-export default createGlobalStyle
+export default css.global
   `
   *{
     padding: 0;
     margin: 0;
-    box-sizin: border-box;
+    box-sizing: border-box;
   }
 
   body {
-    background: ${props => props.theme.colors.background};
-    color: ${props => props.theme.colors.text};
     font: 400 1rem Roboto, sans-serif;
   }
 

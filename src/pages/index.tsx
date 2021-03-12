@@ -1,7 +1,3 @@
-export default function Home() {
-  return (
-    <div>
-      Hello World
-    </div>
-  )
-}
+import Room from '../screens/room'
+
+export default Room
