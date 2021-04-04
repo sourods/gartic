@@ -1,82 +1,61 @@
-import { Machine } from 'xstate';
+import { Machine } from 'xstate'
 
-const gameMachine = Machine({
-  id: 'game',
-  initial: 'setup',
-  states: {
-    setup: {
-      on: {
-        FINISH: [
-          {
-            cond: 'drawer',
-            target: 'draw',
+const gameMachine = Machine(
+  {
+    id: 'game',
+    initial: 'setup',
+    states: {
+      setup: {
+        on: {
+          READY: [
+            {
+              cond: 'drawer',
+              target: 'game.draw.start',
+            },
+            {
+              cond: 'guesser',
+              target: 'game.guess.start',
+            },
+          ],
+        },
+      },
+      draw: {
+        on: {
+          START: {
+            actions: ['unlockCanvas'],
           },
-          {
-            cond: 'guesser',
-            target: 'guess',
+          FINISH: {
+            actions: ['lockCanvas'],
+            target: 'setup',
           },
-          {
-            cond: 'last',
-            target: 'end',
-          }
-        ]
-      }
+          BANNNED: {
+            actions: ['lockCanvas'],
+            invoke: {
+              src: 'banPlayer',
+              onDone: { target: 'setup' },
+            },
+          },
+        },
+      },
+      guess: {
+        on: {
+          START: {
+            actions: ['unlockGuess'],
+          },
+          SUCCESS: {
+            actions: ['lockGuess'],
+          },
+        },
+      },
+      end: {
+        type: 'final',
+      },
     },
-    draw: {
-      on: {
-        START: {
-          actions: ['unlockCanvas'],
-        },
-        FINISH: {
-          actions: ['lockCanvas'],
-          target: 'play.setup',
-        },
-        BANNED: {
-          actions: ['lockCanvas', 'ban'],
-          target: 'play.setup',
-        }
-      }
-    },
-    guess: {
-      on: {
-        START: {
-          actions: ['unlockGuess'],
-        },
-        SUCCESS: {
-          actions: ['lockGuess'],
-        },
-      }
-    },
-    end: {
-      type: 'final'
-    }
   },
-},
   {
     guards: {
       drawer: (_, event) => event.role === 'drawer',
       guesser: (_, event) => event.role === 'guesser',
-      last: (_, event) => event.role === 'last'
-    }
-  })
-
-
-const roomMachine = Machine({
-  id: 'room',
-  initial: 'start',
-  type: 'parallel',
-  states: {
-    start: {
-      on: {
-        CONNECTED: {
-
-        }
-      }
     },
-    end: {
-      type: 'final'
-    }
   }
-});
-
-export default roomMachine
+)

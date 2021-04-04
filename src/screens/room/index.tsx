@@ -1,9 +1,8 @@
 import React from 'react'
-import Canvas from './containers/canvas'
+import Canvas from './canvas'
 import styles from './styles'
 
 const Room = () => {
-
   return (
     <div className="container">
       <div className="ranking"></div>
