@@ -1,8 +1,7 @@
-import globalStyles from '../styles/global'
+import '../styles/global.css'
 const MyApp = ({ Component, pageProps }) => (
   <>
     <Component {...pageProps} />
-    <style jsx>{globalStyles}</style>
   </>
 )
 export default MyApp

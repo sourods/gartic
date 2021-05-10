@@ -1,4 +1,5 @@
 import Document, {
+  DocumentContext,
   Head,
   Html,
   Main,
@@ -7,6 +8,10 @@ import Document, {
 import React from "react";
 
 export default class MyDocument extends Document {
+  static async getInitialProps(ctx: DocumentContext) {
+    const initialProps = await Document.getInitialProps(ctx)
+    return initialProps
+  }
   render(): JSX.Element {
     return (
       <Html lang="pt">

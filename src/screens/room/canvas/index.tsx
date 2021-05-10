@@ -1,98 +1,56 @@
-import React, { useLayoutEffect, useState, useRef, forwardRef } from 'react'
-import { ClientEvent } from '../types'
-import styles from './styles'
+import React, { useEffect, RefObject, forwardRef } from 'react'
+import css from './canvas.module.css'
+import { ClientEvent } from './types'
 
-const Canvas = () => {
-  const canvasRef = useRef(null),
-    contextRef = useRef(null),
-    lineSize = 3
-  const [lastClient, setLastClient] = useState({
-    x: 0,
-    y: 0,
-  })
-  const [drawPreferences, setDrawPreferences] = useState({
-    strokeStyle: 'black',
-    lineWidth: 2 * lineSize,
-  })
-  const [isDrawing, setIsDrawing] = useState(false)
+interface Props {
+  drawPreferences: {
+    strokeStyle: string
+    lineWidth: number
+  },
+  startDrawing: (event: ClientEvent) => void,
+  drawing: (event: ClientEvent) => void,
+  finishDrawing: (event: ClientEvent) => void,
+}
 
-  const getClientPosition = (event: ClientEvent) => {
-    let x = 0,
-      y = 0
-    if ('touches' in event) {
-      const { touches } = event
-      console.log(touches)
-      ;(x = touches[0].clientX), (y = touches[0].clientY)
-    } else {
-      ;(x = event.clientX), (y = event.clientY)
-    }
-    return {
-      x,
-      y,
-    }
-  }
-
-  const updateLastClient = (x: number, y: number) =>
-    setLastClient({
-      x,
-      y,
-    })
-
-  const draw = ({ x, y }: { x: number; y: number }) => {
-    contextRef.current.beginPath()
-    if (
-      lastClient.x &&
-      lastClient.y &&
-      (x !== lastClient.x || y !== lastClient.y)
-    ) {
-      contextRef.current.moveTo(lastClient.x, lastClient.y)
-      contextRef.current.lineTo(x, y)
-      contextRef.current.stroke()
-    }
-
-    contextRef.current.arc(x, y, lineSize, 0, Math.PI * 2, true)
-    contextRef.current.closePath()
-    contextRef.current.fill()
-    updateLastClient(x, y)
-  }
-
-  const startDrawing = (event: ClientEvent) => {
-    setIsDrawing(true)
-    draw(getClientPosition(event))
-  }
-
-  const drawing = (event: ClientEvent) =>
-    isDrawing && draw(getClientPosition(event))
-
-  const finishDrawing = () => {
-    setIsDrawing(false)
-    updateLastClient(0, 0)
-  }
-
+const Canvas = forwardRef((
+  {
+    drawPreferences,
+    startDrawing,
+    drawing,
+    finishDrawing,
+  }: Props, ref: RefObject<HTMLCanvasElement>) => {
   function resizeCanvas() {
-    const canvas = canvasRef.current
+    const { width, height } = ref.current.getBoundingClientRect()
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-
-    const context = canvas.getContext('2d')
-    context.lineCap = 'round'
-    context.strokeStyle = drawPreferences.strokeStyle
-    context.lineWidth = drawPreferences.lineWidth
-    contextRef.current = context
+    if (ref.current.width !== width || ref.current.height !== height) {
+      const { devicePixelRatio: ratio = 1 } = window
+      ref.current.width = width * ratio
+      ref.current.height = height * ratio
+      const ctx = ref.current.getContext('2d')
+      ctx.scale(ratio, ratio)
+    }
   }
 
-  useLayoutEffect(() => {
-    window.addEventListener('resize', resizeCanvas, false)
-    resizeCanvas()
+  const setPreferences = () => {
+    const ctx = ref.current.getContext('2d')
+    ctx.lineCap = 'round'
+    ctx.strokeStyle = drawPreferences.strokeStyle
+    ctx.lineWidth = drawPreferences.lineWidth
+  }
 
+  useEffect(() => {
+    window.addEventListener('resize', resizeCanvas, false)
+    ref.current.width = window.innerWidth
+    ref.current.height = window.innerHeight
+    setPreferences()
     return () => window.removeEventListener('resize', resizeCanvas, false)
   }, [])
+
   return (
     <>
       <canvas
-        className="canvas"
-        ref={canvasRef}
+        className={css.canvas}
+        ref={ref}
         onMouseDown={startDrawing}
         onMouseMove={drawing}
         onMouseUp={finishDrawing}
@@ -101,9 +59,8 @@ const Canvas = () => {
         onTouchMove={drawing}
         onTouchEnd={finishDrawing}
       />
-      <style jsx>{styles}</style>
     </>
   )
-}
+})
 
-export default forwardRef(Canvas)
+export default Canvas

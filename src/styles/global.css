@@ -1,7 +1,3 @@
-import css from 'styled-jsx/css'
-
-export default css.global
-  `
   *{
     padding: 0;
     margin: 0;
@@ -16,4 +12,3 @@ export default css.global
     color: inherit;
     text-decoration: none;
   }
-`

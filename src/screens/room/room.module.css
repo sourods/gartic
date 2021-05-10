@@ -1,6 +1,3 @@
-import css from 'styled-jsx/css'
-
-export default css`
 .container {
   width: 100%;
   height: 100%;
@@ -15,10 +12,8 @@ export default css`
 .chat {
   background: green;
 }
-
 .ranking, .answers, .chat {
   position: fixed;
   z-index: 3;
   width: 8rem;
 }
-`
