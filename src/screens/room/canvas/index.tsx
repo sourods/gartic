@@ -1,4 +1,4 @@
-import React, { useEffect, RefObject, forwardRef } from 'react'
+import React, { useEffect, RefObject, forwardRef, memo } from 'react'
 import css from './canvas.module.css'
 import { ClientEvent } from './types'
 
@@ -12,7 +12,7 @@ interface Props {
   finishDrawing: (event: ClientEvent) => void,
 }
 
-const Canvas = forwardRef((
+const Canvas = (
   {
     drawPreferences,
     startDrawing,
@@ -61,6 +61,6 @@ const Canvas = forwardRef((
       />
     </>
   )
-})
+}
 
-export default Canvas
+export default memo(forwardRef(Canvas))

@@ -1,17 +1,19 @@
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { ClientEvent, InputPosition } from './types'
 
 interface Props {
-  canDraw: boolean
+  onUserDraw: (event: InputPosition) => void
 }
 
-const useCanvas = ({ canDraw }: Props) => {
+const useCanvas = ({ onUserDraw }: Props) => {
+  console.log('pay')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const lineSize = 3
   const [lastClient, setLastClient] = useState({
     x: 0,
     y: 0,
   })
+  const [canDraw, setCanDraw] = useState(false)
 
   const [drawPreferences] = useState({
     strokeStyle: 'black',
@@ -19,6 +21,8 @@ const useCanvas = ({ canDraw }: Props) => {
   })
 
   const [isDrawing, setIsDrawing] = useState(false)
+
+  const afterDraw = useCallback((input: InputPosition) => onUserDraw(input), [])
 
   const getClientPosition = (event: ClientEvent): InputPosition => {
     if ('touches' in event) {
@@ -59,15 +63,24 @@ const useCanvas = ({ canDraw }: Props) => {
     updateLastClient(x, y)
   }
 
+  const userDraw = (event: ClientEvent) => {
+    const input = getClientPosition(event)
+    draw(input)
+    afterDraw(input)
+  }
+
   const startDrawing = (event: ClientEvent) => {
     if (canDraw) {
       setIsDrawing(true)
-      draw(getClientPosition(event))
+      userDraw(event)
     }
   }
 
-  const drawing = (event: ClientEvent) =>
-    isDrawing && draw(getClientPosition(event))
+  const drawing = (event: ClientEvent) => {
+    if (isDrawing) {
+      userDraw(event)
+    }
+  }
 
   const finishDrawing = () => {
     setIsDrawing(false)
@@ -86,6 +99,7 @@ const useCanvas = ({ canDraw }: Props) => {
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
       ctx.beginPath()
     },
+    setCanUserDraw: setCanDraw,
     draw,
     canvasRef
   }

@@ -40,7 +40,7 @@ export default Machine(
             target: 'start',
           },
         },
-        exit: ['lockCanvas'],
+        exit: ['lockCanvas', 'clearCanvas'],
       },
       guess: {
         entry: ['unlockGuessChat'],
