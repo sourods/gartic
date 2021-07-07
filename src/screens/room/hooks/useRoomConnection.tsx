@@ -4,12 +4,21 @@ const client = new Client("ws://localhost:2567");
 
 const useRoomConnection = ({ onNetCanvasChange }) => {
   const [error, setError] = useState(false)
-  const handleCanvasUpdates = (room: Room) =>  {
+  const listenCanvasChanges = (room: Room) => {
+    room.onMessage("CanvasUpdate", ({ x, y }) => {
+      onNetCanvasChange({ x, y })
+    })
+    room.onMessage("CanvasHistory", (history) => {
+      history.forEach(coordinate => {
+        onNetCanvasChange(coordinate)
+      });
+    })
+  }
+  const handlePlayersUpdates = (room: Room) =>  {
     room.state.players.onAdd = function (player, sessionId) {
       console.log(`o player ${sessionId} se conectou`)
       player.onChange = function () {
         console.log('changes', player)
-        onNetCanvasChange({ x: player.x, y: player.y })
       }
     }
   }
@@ -18,7 +27,8 @@ const useRoomConnection = ({ onNetCanvasChange }) => {
       client.joinOrCreate("CanvasRoom")
         .then((room: Room) => {
           resolve(room)
-          handleCanvasUpdates(room)
+          handlePlayersUpdates(room)
+          listenCanvasChanges(room)
         })
         .catch(error => {
           console.log('Connection failed !!!', error)

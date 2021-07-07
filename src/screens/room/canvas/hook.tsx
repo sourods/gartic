@@ -6,7 +6,6 @@ interface Props {
 }
 
 const useCanvas = ({ onUserDraw }: Props) => {
-  console.log('pay')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const lineSize = 3
   const [lastClient, setLastClient] = useState({

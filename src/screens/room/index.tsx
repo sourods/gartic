@@ -14,7 +14,7 @@ const Room = () => {
 
   //Screen hooks
   const { canvasProps, clearCanvas, setCanUserDraw, canvasRef, draw } = useCanvas({
-    onUserDraw: (input: InputPosition) => connection.send('canvasUpdate', input)
+    onUserDraw: (input: InputPosition) => connection.send('CanvasUpdate', input)
   })
 
   //Handle state machine
